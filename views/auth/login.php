@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($pageTitle); ?></title>
-    <link rel="stylesheet" href="/assets/css/style.css">
-    <link rel="stylesheet" href="/assets/css/login.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/login.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -30,7 +30,7 @@
                     </div>
                 <?php endif; ?>
 
-                <form action="/login" method="post" data-validate>
+                <form action="<?php echo BASE_URL; ?>/login" method="post" data-validate>
                     <div class="form-group">
                         <label for="username" class="form-label">
                             <i class="fas fa-user"></i> Nom d'utilisateur
@@ -88,6 +88,6 @@
         </div>
     </div>
 
-    <script src="/assets/js/main.js"></script>
+    <script src="<?php echo BASE_URL; ?>/assets/js/main.js"></script>
 </body>
 </html>

@@ -1,91 +1,59 @@
 <?php
 
-/**
- * Router principal du système CRUD ASBL-ONG
- * Toutes les routes et contrôleurs sont gérés ici
- */
-
-try {
-    // Connexion simple à la base de données (suppose que la base est déjà installée)
-    $db = Database::getInstance();
-    $pdo = $db->getConnection();
-    $db->selectDatabase(DB_NAME);
-
-    // Get the current route
-    $route = getRoute();
-
-    // Handle routing
-    switch ($route) {
-        case 'login':
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                handleLoginAuthenticate();
-            } else {
-                handleLogin();
-            }
-            break;
-        case 'logout':
-            handleLogout();
-            break;
-        case 'dashboard':
-            handleDashboard();
-            break;
-        case 'users':
-            handleUsers();
-            break;
-        case 'members':
-            handleMembers();
-            break;
-        case 'projects':
-            handleProjects();
-            break;
-        case 'events':
-            handleEvents();
-            break;
-        case 'donations':
-            handleDonations();
-            break;
-        case 'documentation':
-            handleDocumentation();
-            break;
-        case 'search':
-            handleSearch();
-            break;
-        case 'hr':
-            handleHR();
-            break;
-        default:
-            // Default to dashboard if authenticated, login if not
-            if (isAuthenticated()) {
-                handleDashboard();
-            } else {
-                handleLogin();
-            }
-            break;
-    }
-} catch (Exception $e) {
-    displayError($e->getMessage());
-}
-
+declare(strict_types=1);
 
 /**
- * Get the current route from URL
- * @return string
+ * ============================================================================
+ * ROUTEUR PRINCIPAL - ASBL-ONG-MANAGER
+ * ============================================================================
+ * 
+ * Architecture d'acheminement centralisée pour toutes les requêtes HTTP
+ * 
+ * Structure complète:
+ * 1. DÉCLARATION DE TYPE         - Strict types pour meilleure sécurité
+ * 2. UTILITAIRES DE ROUTAGE      - getRoute(), isAuthenticated(), etc.
+ * 3. ROUTAGE PRINCIPAL (SWITCH)  - Acheminage selon première partie de l'URI
+ * 4. HANDLERS D'AUTHENTIFICATION - Login, Logout
+ * 5. HANDLERS DU DASHBOARD       - Accueil principal
+ * 6. HANDLERS MODULES CRUD       - Users, Members, Projects, Events, Donations
+ * 7. HANDLERS MODULES INFOS      - Search, Documentation
+ * 8. HANDLER HR SPÉCIALISÉ       - Routing complexe pour le module HR
+ * 
+ * Conception modulaire permettant l'ajout simple de nouvelles routes.
+ * Support complet du pattern CRUD avec la fonction dispatchAction().
+ * 
+ * @author Système ASBL-ONG-MANAGER
+ * @version 4.0
+ * @see dispatchAction() - Dispatche les actions CRUD
  */
-function getRoute()
+
+// ============================================================================
+// 1. UTILITAIRES DE ROUTAGE
+// ============================================================================
+
+/**
+ * Extrait la route actuelle de l'URI
+ * 
+ * Analyse l'URI demandée et extrait le premier segment comme route.
+ * Exemple: /users/show?id=1 → 'users'
+ *
+ * @return string La route actuelle (p.ex. 'users', 'members', 'dashboard')
+ */
+function getRoute(): string
 {
     $requestUri = $_SERVER['REQUEST_URI'];
     $scriptName = $_SERVER['SCRIPT_NAME'];
 
-    // Remove script name from URI
+    // Supprime le nom du script (index.php) de l'URI
     $path = str_replace(dirname($scriptName), '', $requestUri);
 
-    // Remove query string
+    // Supprime la chaîne de requête (query string)
     $path = parse_url($path, PHP_URL_PATH);
 
-    // Remove leading/trailing slashes
+    // Supprime les slashes au début et à la fin
     $path = trim($path, '/');
 
-    // Get the first segment as route
+    // Récupère le premier segment comme route
     $segments = explode('/', $path);
     $route = $segments[0] ?? '';
 
@@ -93,22 +61,26 @@ function getRoute()
 }
 
 /**
- * Check if user is authenticated
- * @return bool
+ * Vérifie si l'utilisateur est authentifié
+ *
+ * @return bool True si l'utilisateur a une session valide
  */
-function isAuthenticated()
+function isAuthenticated(): bool
 {
-    if (session_status() == PHP_SESSION_NONE) {
+    if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
+    
     return isset($_SESSION['user_id']);
 }
 
 /**
- * Display error message
- * @param string $message
+ * Affiche un message d'erreur de manière sécurisée
+ *
+ * @param string $message Le message d'erreur à afficher
+ * @return void
  */
-function displayError($message)
+function displayError(string $message): void
 {
     $pageTitle = 'Erreur';
     include 'views/header.php';
@@ -116,134 +88,345 @@ function displayError($message)
     include 'views/footer.php';
 }
 
-// --- Handler Functions for Routing ---
-function handleDashboard()
+/**
+ * Dispatche l'action au contrôleur approprié
+ * 
+ * Support complet des opérations CRUD :
+ * - GET  /module              → index()   (liste)
+ * - GET  /module?action=create → create()  (formulaire)
+ * - GET  /module?action=show   → show()    (détail)
+ * - GET  /module?action=edit   → edit()    (formulaire édition)
+ * - POST /module?action=store  → store()   (sauvegarde)
+ * - POST /module?action=update → update()  (mise à jour)
+ * - POST /module?action=delete → delete()  (suppression)
+ *
+ * @param object $controller L'instance du contrôleur
+ * @param string $defaultAction L'action par défaut (par défaut: 'index')
+ * @return void
+ */
+function dispatchAction($controller, string $defaultAction = 'index'): void
 {
-    require_once __DIR__ . '/../controllers/DashboardController.php';
-    $controller = new DashboardController();
-    $controller->index();
+    // Récupère l'action demandée (GET > POST > défaut)
+    $action = $_GET['action'] ?? $_POST['action'] ?? $defaultAction;
+    $method = $_SERVER['REQUEST_METHOD'];
+
+    // Nettoie le nom de l'action (sécurité)
+    $action = preg_replace('/[^a-zA-Z0-9_]/', '', $action);
+
+    // Traitement des requêtes POST (écriture)
+    if ($method === 'POST') {
+        if ($action === 'store' && method_exists($controller, 'store')) {
+            $controller->store();
+        } elseif ($action === 'update' && method_exists($controller, 'update')) {
+            $controller->update();
+        } elseif ($action === 'delete' && method_exists($controller, 'delete')) {
+            $controller->delete();
+        } else {
+            if (method_exists($controller, 'store')) {
+                $controller->store();
+            } else {
+                $controller->index();
+            }
+        }
+    } 
+    // Traitement des requêtes GET (lecture)
+    else {
+        if ($action === 'index' && method_exists($controller, 'index')) {
+            $controller->index();
+        } elseif ($action === 'create' && method_exists($controller, 'create')) {
+            $controller->create();
+        } elseif ($action === 'show' && method_exists($controller, 'show')) {
+            $controller->show();
+        } elseif ($action === 'edit' && method_exists($controller, 'edit')) {
+            $controller->edit();
+        } else {
+            if (method_exists($controller, $defaultAction)) {
+                $controller->$defaultAction();
+            } else {
+                $controller->index();
+            }
+        }
+    }
 }
 
-function handleLogin()
+// ============================================================================
+// 2. ROUTAGE PRINCIPAL
+// ============================================================================
+
+try {
+    // Initialisation de la base de données
+    $db = Database::getInstance();
+    $pdo = $db->getConnection();
+    $db->selectDatabase(DB_NAME);
+
+    // Extraction de la route actuelle
+    $route = getRoute();
+
+    // Acheminage vers le handler approprié
+    switch ($route) {
+        /**
+         * =========== AUTHENTIFICATION ===========
+         */
+        case 'login':
+            ($_SERVER['REQUEST_METHOD'] === 'POST') 
+                ? handleLoginAuthenticate() 
+                : handleLogin();
+            break;
+
+        case 'logout':
+            handleLogout();
+            break;
+
+        /**
+         * =========== ACCUEIL ===========
+         */
+        case 'dashboard':
+            handleDashboard();
+            break;
+
+        /**
+         * =========== MODULES CRUD PRINCIPAUX ===========
+         */
+        case 'users':
+            handleUsers();
+            break;
+
+        case 'members':
+            handleMembers();
+            break;
+
+        case 'projects':
+            handleProjects();
+            break;
+
+        case 'events':
+            handleEvents();
+            break;
+
+        case 'donations':
+            handleDonations();
+            break;
+
+        /**
+         * =========== MODULES INFORMATIONNELS ===========
+         */
+        case 'documentation':
+            handleDocumentation();
+            break;
+
+        case 'search':
+            handleSearch();
+            break;
+
+        /**
+         * =========== MODULES SPÉCIALISÉS ===========
+         */
+        case 'hr':
+            handleHR();
+            break;
+
+        /**
+         * =========== ROUTE PAR DÉFAUT ===========
+         */
+        default:
+            isAuthenticated() ? handleDashboard() : handleLogin();
+            break;
+    }
+} catch (Exception $e) {
+    displayError($e->getMessage());
+}
+
+// ============================================================================
+// 3. HANDLERS D'AUTHENTIFICATION
+// ============================================================================
+
+/**
+ * Affiche le formulaire de connexion
+ */
+function handleLogin(): void
 {
     require_once __DIR__ . '/../controllers/UserController.php';
     $controller = new UserController();
     $controller->login();
 }
 
-function handleLoginAuthenticate()
+/**
+ * Traite l'authentification (validation des identifiants)
+ */
+function handleLoginAuthenticate(): void
 {
     require_once __DIR__ . '/../controllers/UserController.php';
     $controller = new UserController();
     $controller->authenticate();
 }
 
-function handleLogout()
+/**
+ * Traite la déconnexion
+ */
+function handleLogout(): void
 {
     require_once __DIR__ . '/../controllers/UserController.php';
     $controller = new UserController();
     $controller->logout();
 }
 
-function handleUsers()
+// ============================================================================
+// 4. HANDLER DU DASHBOARD
+// ============================================================================
+
+/**
+ * Traite les requêtes vers le dashboard principal de l'application
+ */
+function handleDashboard(): void
+{
+    require_once __DIR__ . '/../controllers/DashboardController.php';
+    $controller = new DashboardController();
+    $controller->index();
+}
+
+// ============================================================================
+// 5. HANDLERS DES MODULES CRUD PRINCIPAUX
+// ============================================================================
+// Chaque handler instancie le contrôleur et utilise dispatchAction()
+// pour router les actions: index, create, show, edit, store, update, delete
+
+/**
+ * Traite les requêtes vers le module Utilisateurs
+ * Actions supportées: index, create, show, edit, store, update, delete
+ */
+function handleUsers(): void
 {
     require_once __DIR__ . '/../controllers/UserController.php';
     $controller = new UserController();
-    $controller->index();
+    dispatchAction($controller);
 }
 
-function handleMembers()
+/**
+ * Traite les requêtes vers le module Membres
+ * Actions supportées: index, create, show, edit, store, update, delete
+ */
+function handleMembers(): void
 {
     require_once __DIR__ . '/../controllers/MemberController.php';
     $controller = new MemberController();
-    $controller->index();
+    dispatchAction($controller);
 }
 
-function handleProjects()
+/**
+ * Traite les requêtes vers le module Projets
+ * Actions supportées: index, create, show, edit, store, update, delete
+ */
+function handleProjects(): void
 {
     require_once __DIR__ . '/../controllers/ProjectController.php';
     $controller = new ProjectController();
-    $controller->index();
+    dispatchAction($controller);
 }
 
-function handleEvents()
+/**
+ * Traite les requêtes vers le module Événements
+ * Actions supportées: index, create, show, edit, store, update, delete
+ */
+function handleEvents(): void
 {
     require_once __DIR__ . '/../controllers/EventController.php';
     $controller = new EventController();
-    $controller->index();
+    dispatchAction($controller);
 }
 
-function handleDonations()
+/**
+ * Traite les requêtes vers le module Donations
+ * Actions supportées: index, create, show, edit, store, update, delete
+ */
+function handleDonations(): void
 {
     require_once __DIR__ . '/../controllers/DonationController.php';
     $controller = new DonationController();
-    $controller->index();
+    dispatchAction($controller);
 }
 
-function handleDocumentation()
-{
-    require_once __DIR__ . '/../controllers/DocumentationController.php';
-    $controller = new DocumentationController();
-    $controller->index();
-}
+// ============================================================================
+// 6. HANDLERS DES MODULES INFORMATIONNELS
+// ============================================================================
 
-function handleSearch()
+/**
+ * Traite les requêtes vers la Recherche globale
+ * Utilise le paramètre 'q' pour la requête de recherche
+ */
+function handleSearch(): void
 {
     require_once __DIR__ . '/../controllers/SearchController.php';
     $controller = new SearchController();
-    $controller->index();
+    dispatchAction($controller);
 }
 
-function handleHR()
+/**
+ * Traite les requêtes vers la Documentation
+ * Actions supportées: index et autres selon disponibilité
+ */
+function handleDocumentation(): void
 {
-    // Check HR access before instantiating controller
-    if (session_status() == PHP_SESSION_NONE) {
+    require_once __DIR__ . '/../controllers/DocumentationController.php';
+    $controller = new DocumentationController();
+    dispatchAction($controller);
+}
+
+// ============================================================================
+// 7. HANDLER DU MODULE RESOURCES HUMAINES (SPÉCIALISÉ)
+// ============================================================================
+
+/**
+ * Traite les requêtes vers le module Resources Humaines
+ * 
+ * Module complexe avec routing personnalisé pour les sous-modules:
+ * - Dashboard: /hr/dashboard
+ * - Employés: /hr, /hr/{id}, /hr/{id}/edit
+ * - Contrats: /hr/contracts, /hr/contract/{id}, /hr/contract/{id}/edit
+ * - Absences: /hr/absences, /hr/absences/{id}, /hr/absences/{id}/approve|reject
+ * - Paie: /hr/payroll, /hr/payroll/{id}/edit, /hr/payroll/{id}/pdf
+ * - Formations: /hr/trainings
+ * - Compétences: /hr/skills, /hr/skills/{id}/edit
+ * - Évaluations: /hr/evaluations
+ * 
+ * Accès: Utilisateurs authentifiés avec rôle valide
+ * Rôles autorisés: admin, moderator, hr_manager, supervisor, hr, manager, user, visitor
+ */
+function handleHR(): void
+{
+    // Initialisation de la session
+    if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
     
-    error_log("=== handleHR() CALLED ===");
-    error_log("REQUEST_URI: " . $_SERVER['REQUEST_URI']);
-    error_log("user_id isset: " . (isset($_SESSION['user_id']) ? "YES" : "NO"));
-    error_log("user_id value: " . ($_SESSION['user_id'] ?? 'NULL'));
-    error_log("user role: " . ($_SESSION['user']['role'] ?? 'NULL'));
-    
-    // First, check if user is authenticated at all
+    // Vérification d'authentification
     if (!isset($_SESSION['user_id'])) {
-        error_log("REDIRECT: Not authenticated -> /login");
-        // User not authenticated, redirect to login
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
         $host = $_SERVER['HTTP_HOST'];
         header("Location: " . $protocol . $host . "/login");
         exit;
     }
     
-    // For now, allow all authenticated users to access HR (can be restricted later)
+    // Vérification des rôles autorisés
     $allowedRoles = ['admin', 'moderator', 'hr_manager', 'supervisor', 'hr', 'manager', 'user', 'visitor'];
     $userRole = $_SESSION['user']['role'] ?? null;
     
-    error_log("userRole: " . ($userRole ?? 'NULL'));
-    error_log("in_array result: " . (in_array($userRole, $allowedRoles) ? "YES" : "NO"));
-    
     if (!in_array($userRole, $allowedRoles) || empty($userRole)) {
-        error_log("REDIRECT: Invalid role or empty -> /dashboard");
-        // Redirect without using BASE_URL to avoid issues
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
         $host = $_SERVER['HTTP_HOST'];
         header("Location: " . $protocol . $host . "/dashboard");
         exit;
     }
     
-    error_log("PASSED authentication and role check, proceeding to controller");
-    
+    // Instanciation du contrôleur HR
     require_once __DIR__ . '/../controllers/HRController.php';
     $controller = new HRController();
-
-    // Get request path and method
+    
+    // Extraction de l'URI et de la méthode HTTP
     $requestUri = $_SERVER['REQUEST_URI'];
     $path = parse_url($requestUri, PHP_URL_PATH);
     $method = $_SERVER['REQUEST_METHOD'];
-
-    // Parse HR routes
+    
+    // Table de routage HR
     if (preg_match('#^/hr/dashboard$#', $path)) {
         $controller->dashboard();
     } elseif (preg_match('#^/hr/payroll/(\d+)/pdf$#', $path, $matches)) {
@@ -275,14 +458,7 @@ function handleHR()
     } elseif (preg_match('#^/hr/evaluations/?$#', $path) && $method === 'POST') {
         $controller->storeEvaluation();
     } elseif (preg_match('#^/hr/evaluations/?$#', $path)) {
-        // DEBUG
-        error_log("ROUTE MATCHED: /hr/evaluations - calling evaluations()");
-        try {
-            $controller->evaluations();
-        } catch (Exception $e) {
-            error_log("EXCEPTION in evaluations(): " . $e->getMessage());
-            throw $e;
-        }
+        $controller->evaluations();
     } elseif (preg_match('#^/hr/contract/(\d+)/delete$#', $path, $matches)) {
         $controller->deleteContract($matches[1]);
     } elseif (preg_match('#^/hr/contract/(\d+)/edit$#', $path, $matches)) {

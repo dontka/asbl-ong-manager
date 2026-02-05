@@ -1,16 +1,24 @@
 <?php $pageTitle = 'Ajouter un Projet'; ?>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Ajouter un Projet</h1>
-    <a href="<?php echo BASE_URL; ?>/projects" class="btn btn-secondary">Retour à la liste</a>
+<div class="nav-container">
+    <div class="nav-left">
+        <h1><i class="fas fa-folder-plus"></i> Ajouter un Projet</h1>
+        <p class="nav-date">Créez un nouveau projet dans votre portefeuille</p>
+    </div>
+    <div class="nav-actions">
+        <a href="<?php echo BASE_URL; ?>/projects" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour à la liste
+        </a>
+    </div>
 </div>
 
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-body">
-                <form action="/projects" method="post" data-validate>
-                    <input type="hidden" name="action" value="store">
+<div class="chart-card" style="max-width: 700px; margin: 0 auto;">
+    <div class="chart-header">
+        <h3>Informations du projet</h3>
+    </div>
+    <div class="chart-content">
+        <form action="/projects" method="post" data-validate>
+            <input type="hidden" name="action" value="store">
                     <div class="form-group">
                         <label for="name" class="form-label">Nom du projet *</label>
                         <input type="text" class="form-control" id="name" name="name" required>
@@ -65,12 +73,14 @@
                         <div class="form-text">Seuls les administrateurs et modérateurs peuvent être responsables.</div>
                     </div>
 
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Créer le projet</button>
-                        <a href="<?php echo BASE_URL; ?>/projects" class="btn btn-secondary">Annuler</a>
+                    <div class="form-group" style="display: flex; gap: 8px; margin-top: 24px;">
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">
+                            <i class="fas fa-check"></i> Créer le projet
+                        </button>
+                        <a href="<?php echo BASE_URL; ?>/projects" class="btn btn-secondary" style="flex: 1; text-align: center;">
+                            <i class="fas fa-times"></i> Annuler
+                        </a>
                     </div>
-                </form>
-            </div>
-        </div>
+        </form>
     </div>
 </div>

@@ -112,6 +112,24 @@ class Donation extends Model
     }
 
     /**
+     * Find donation by ID with project information
+     * @param int $id
+     * @return array|null
+     */
+    public function findByIdWithProject($id)
+    {
+        try {
+            $sql = "SELECT d.*, p.name as project_name FROM {$this->table} d LEFT JOIN projects p ON d.project_id = p.id WHERE d.id = ?";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$id]);
+            return $stmt->fetch();
+        } catch (PDOException $e) {
+            $this->logError("findByIdWithProject failed: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Get total amount of donations
      * @param array $conditions Optional WHERE conditions
      * @return float

@@ -96,6 +96,24 @@ class Event extends Model
     }
 
     /**
+     * Find event by ID with organizer information
+     * @param int $id
+     * @return array|null
+     */
+    public function findByIdWithOrganizer($id)
+    {
+        try {
+            $sql = "SELECT e.*, u.firstname as organizer_firstname, u.lastname as organizer_lastname, CONCAT(u.firstname, ' ', u.lastname) as organizer_name FROM {$this->table} e LEFT JOIN users u ON e.organizer_id = u.id WHERE e.id = ?";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$id]);
+            return $stmt->fetch();
+        } catch (PDOException $e) {
+            $this->logError("findByIdWithOrganizer failed: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Check if organizer ID is valid
      * @param int $organizerId
      * @return bool

@@ -25,7 +25,7 @@ Le système a été configuré avec des comptes de test :
 
 1. **Accès à l'application**
    - Ouvrez votre navigateur web
-   - Accédez à l'URL de l'application (ex: `http://localhost/crud-asbl-ong`)
+   - Accédez à l'URL de l'application (ex: `http://localhost/asbl-ong-manager`)
 
 2. **Page de connexion**
    - Cliquez sur "Connexion" ou allez directement sur `/login`

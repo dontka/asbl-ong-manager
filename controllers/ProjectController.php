@@ -99,10 +99,15 @@ class ProjectController extends Controller
             $this->redirect('/projects');
         }
 
+        // Load donations for this project
+        $donationModel = new Donation();
+        $project_donations = $donationModel->getDonationsByProject($id);
+
         $flash = $this->getFlash();
 
         $this->renderPage('projects/show', [
             'project' => $project,
+            'project_donations' => $project_donations,
             'flash' => $flash
         ]);
     }

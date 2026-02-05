@@ -1,16 +1,24 @@
 <?php $pageTitle = 'Ajouter un Membre'; ?>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Ajouter un Membre</h1>
-    <a href="<?php echo BASE_URL; ?>/members" class="btn btn-secondary">Retour à la liste</a>
+<div class="nav-container">
+    <div class="nav-left">
+        <h1><i class="fas fa-user-plus"></i> Ajouter un Membre</h1>
+        <p class="nav-date">Créez un nouveau profil membre dans le système</p>
+    </div>
+    <div class="nav-actions">
+        <a href="<?php echo BASE_URL; ?>/members" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour à la liste
+        </a>
+    </div>
 </div>
 
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-body">
-                <form action="/members" method="post" data-validate>
-                    <input type="hidden" name="action" value="store">
+<div class="chart-card" style="max-width: 700px; margin: 0 auto;">
+    <div class="chart-header">
+        <h3>Informations du membre</h3>
+    </div>
+    <div class="chart-content">
+        <form action="/members" method="post" data-validate>
+            <input type="hidden" name="action" value="store">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -60,12 +68,14 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Créer le membre</button>
-                        <a href="<?php echo BASE_URL; ?>/members" class="btn btn-secondary">Annuler</a>
+                    <div class="form-group" style="display: flex; gap: 8px; margin-top: 24px;">
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">
+                            <i class="fas fa-check"></i> Créer le membre
+                        </button>
+                        <a href="<?php echo BASE_URL; ?>/members" class="btn btn-secondary" style="flex: 1; text-align: center;">
+                            <i class="fas fa-times"></i> Annuler
+                        </a>
                     </div>
-                </form>
-            </div>
-        </div>
+        </form>
     </div>
 </div>

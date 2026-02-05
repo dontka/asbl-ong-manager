@@ -13,184 +13,22 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
--- Listage de la structure de table crud_asbl_ong. absences
-CREATE TABLE IF NOT EXISTS `absences` (
+-- Listage de la structure de table crud_asbl_ong. users
+CREATE TABLE IF NOT EXISTS `users` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `employee_id` int NOT NULL,
-  `type` enum('conge','maladie','autre') COLLATE utf8mb4_unicode_ci DEFAULT 'conge',
-  `start_date` date NOT NULL,
-  `end_date` date NOT NULL,
-  `status` enum('demande','valide','refuse') COLLATE utf8mb4_unicode_ci DEFAULT 'demande',
+  `username` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `role` enum('admin','moderator','visitor','hr_manager','accountant','project_manager','crm_officer','member','volunteer','guest','supervisor','auditor','security_officer','it_officer','communication_officer','compliance_officer','marketplace_officer','support_officer','training_officer','quality_officer') COLLATE utf8mb4_unicode_ci DEFAULT 'visitor',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `absences_ibfk_1` (`employee_id`),
-  CONSTRAINT `absences_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `email` (`email`),
+  KEY `idx_users_email` (`email`),
+  KEY `idx_users_role` (`role`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Les données exportées n'étaient pas sélectionnées.
-
--- Listage de la structure de table crud_asbl_ong. audit_trail
-CREATE TABLE IF NOT EXISTS `audit_trail` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `utilisateur_id` int DEFAULT NULL,
-  `action` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
-  `date` datetime NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `utilisateur_id` (`utilisateur_id`),
-  CONSTRAINT `audit_trail_ibfk_1` FOREIGN KEY (`utilisateur_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Les données exportées n'étaient pas sélectionnées.
-
--- Listage de la structure de table crud_asbl_ong. budgets
-CREATE TABLE IF NOT EXISTS `budgets` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `project_id` int DEFAULT NULL,
-  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `amount` decimal(12,2) NOT NULL,
-  `currency` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT 'EUR',
-  `period` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `project_id` (`project_id`),
-  CONSTRAINT `budgets_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Les données exportées n'étaient pas sélectionnées.
-
--- Listage de la structure de table crud_asbl_ong. campagnes
-CREATE TABLE IF NOT EXISTS `campagnes` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `nom` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `type` enum('email','sms','autre') COLLATE utf8mb4_unicode_ci DEFAULT 'email',
-  `date_lancement` date DEFAULT NULL,
-  `statut` enum('brouillon','active','terminee') COLLATE utf8mb4_unicode_ci DEFAULT 'brouillon',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Les données exportées n'étaient pas sélectionnées.
-
--- Listage de la structure de table crud_asbl_ong. contacts
-CREATE TABLE IF NOT EXISTS `contacts` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `type` enum('donateur','partenaire','membre','beneficiaire','autre') COLLATE utf8mb4_unicode_ci DEFAULT 'autre',
-  `nom` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `telephone` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `organisation` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Les données exportées n'étaient pas sélectionnées.
-
--- Listage de la structure de table crud_asbl_ong. contracts
-CREATE TABLE IF NOT EXISTS `contracts` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `employee_id` int NOT NULL,
-  `contract_type` enum('CDI','CDD','Stage','Alternance','Freelance') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `contract_number` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `start_date` date NOT NULL,
-  `end_date` date DEFAULT NULL,
-  `renewal_date` date DEFAULT NULL,
-  `status` enum('active','ended','renewed','terminated') COLLATE utf8mb4_unicode_ci DEFAULT 'active',
-  `position_title` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `salary` decimal(10,2) DEFAULT NULL,
-  `working_hours` int DEFAULT '35',
-  `probation_period_days` int DEFAULT NULL,
-  `probation_end_date` date DEFAULT NULL,
-  `document_path` text COLLATE utf8mb4_unicode_ci,
-  `notes` text COLLATE utf8mb4_unicode_ci,
-  `alert_renewal` tinyint(1) DEFAULT '0',
-  `alert_renewal_date` date DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `contract_number` (`contract_number`),
-  KEY `start_date` (`start_date`),
-  KEY `end_date` (`end_date`),
-  KEY `status` (`status`),
-  KEY `idx_contracts_employee_id` (`employee_id`),
-  CONSTRAINT `contracts_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Les données exportées n'étaient pas sélectionnées.
-
--- Listage de la structure de table crud_asbl_ong. contrats
-CREATE TABLE IF NOT EXISTS `contrats` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `employee_id` int NOT NULL,
-  `type` enum('CDI','CDD','Stage','Autre') COLLATE utf8mb4_unicode_ci DEFAULT 'CDI',
-  `start_date` date NOT NULL,
-  `end_date` date DEFAULT NULL,
-  `status` enum('actif','termine','suspendu') COLLATE utf8mb4_unicode_ci DEFAULT 'actif',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `contrats_ibfk_1` (`employee_id`),
-  CONSTRAINT `contrats_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Les données exportées n'étaient pas sélectionnées.
-
--- Listage de la structure de table crud_asbl_ong. documents
-CREATE TABLE IF NOT EXISTS `documents` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `nom` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `chemin` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `type` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `version` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `statut` enum('actif','archive','supprime') COLLATE utf8mb4_unicode_ci DEFAULT 'actif',
-  `date_upload` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `utilisateur_id` int DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `utilisateur_id` (`utilisateur_id`),
-  CONSTRAINT `documents_ibfk_1` FOREIGN KEY (`utilisateur_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Les données exportées n'étaient pas sélectionnées.
-
--- Listage de la structure de table crud_asbl_ong. donations
-CREATE TABLE IF NOT EXISTS `donations` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `donor_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `donor_email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `amount` decimal(10,2) NOT NULL,
-  `donation_date` date NOT NULL,
-  `project_id` int DEFAULT NULL,
-  `payment_method` enum('cash','bank_transfer','online') COLLATE utf8mb4_unicode_ci DEFAULT 'cash',
-  `notes` text COLLATE utf8mb4_unicode_ci,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_donations_project` (`project_id`),
-  KEY `idx_donations_date` (`donation_date`),
-  CONSTRAINT `donations_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Les données exportées n'étaient pas sélectionnées.
-
--- Listage de la structure de table crud_asbl_ong. ecritures
-CREATE TABLE IF NOT EXISTS `ecritures` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `date` date NOT NULL,
-  `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `debit` decimal(12,2) DEFAULT '0.00',
-  `credit` decimal(12,2) DEFAULT '0.00',
-  `project_id` int DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `project_id` (`project_id`),
-  CONSTRAINT `ecritures_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Les données exportées n'étaient pas sélectionnées.
 
 -- Listage de la structure de table crud_asbl_ong. employees
 CREATE TABLE IF NOT EXISTS `employees` (
@@ -234,7 +72,215 @@ CREATE TABLE IF NOT EXISTS `employees` (
   KEY `idx_employees_employment_status` (`employment_status`),
   CONSTRAINT `employees_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
   CONSTRAINT `employees_ibfk_2` FOREIGN KEY (`manager_id`) REFERENCES `employees` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- Listage de la structure de table crud_asbl_ong. absences
+CREATE TABLE IF NOT EXISTS `absences` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `employee_id` int NOT NULL,
+  `type` enum('conge','maladie','autre') COLLATE utf8mb4_unicode_ci DEFAULT 'conge',
+  `start_date` date NOT NULL,
+  `end_date` date NOT NULL,
+  `status` enum('demande','valide','refuse') COLLATE utf8mb4_unicode_ci DEFAULT 'demande',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `absences_ibfk_1` (`employee_id`),
+  CONSTRAINT `absences_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
+-- Listage de la structure de table crud_asbl_ong. audit_trail
+CREATE TABLE IF NOT EXISTS `audit_trail` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `utilisateur_id` int DEFAULT NULL,
+  `action` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `date` datetime NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `utilisateur_id` (`utilisateur_id`),
+  CONSTRAINT `audit_trail_ibfk_1` FOREIGN KEY (`utilisateur_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
+-- Listage de la structure de table crud_asbl_ong. projects
+CREATE TABLE IF NOT EXISTS `projects` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
+  `budget` decimal(10,2) DEFAULT NULL,
+  `status` enum('planning','active','completed','on_hold') COLLATE utf8mb4_unicode_ci DEFAULT 'planning',
+  `manager_id` int DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_projects_manager` (`manager_id`),
+  CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`manager_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Listage de la structure de table crud_asbl_ong. budgets
+CREATE TABLE IF NOT EXISTS `budgets` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `project_id` int DEFAULT NULL,
+  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `amount` decimal(12,2) NOT NULL,
+  `currency` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT 'EUR',
+  `period` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `project_id` (`project_id`),
+  CONSTRAINT `budgets_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
+-- Listage de la structure de table crud_asbl_ong. campagnes
+CREATE TABLE IF NOT EXISTS `campagnes` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nom` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type` enum('email','sms','autre') COLLATE utf8mb4_unicode_ci DEFAULT 'email',
+  `date_lancement` date DEFAULT NULL,
+  `statut` enum('brouillon','active','terminee') COLLATE utf8mb4_unicode_ci DEFAULT 'brouillon',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
+-- Listage de la structure de table crud_asbl_ong. contacts
+CREATE TABLE IF NOT EXISTS `contacts` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `type` enum('donateur','partenaire','membre','beneficiaire','autre') COLLATE utf8mb4_unicode_ci DEFAULT 'autre',
+  `nom` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `telephone` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `organisation` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
+-- Listage de la structure de table crud_asbl_ong. contracts
+CREATE TABLE IF NOT EXISTS `contracts` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `employee_id` int NOT NULL,
+  `contract_type` enum('CDI','CDD','Stage','Alternance','Freelance') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `contract_number` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date DEFAULT NULL,
+  `renewal_date` date DEFAULT NULL,
+  `status` enum('active','ended','renewed','terminated') COLLATE utf8mb4_unicode_ci DEFAULT 'active',
+  `position_title` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `salary` decimal(10,2) DEFAULT NULL,
+  `working_hours` int DEFAULT '35',
+  `probation_period_days` int DEFAULT NULL,
+  `probation_end_date` date DEFAULT NULL,
+  `document_path` text COLLATE utf8mb4_unicode_ci,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `alert_renewal` tinyint(1) DEFAULT '0',
+  `alert_renewal_date` date DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `contract_number` (`contract_number`),
+  KEY `start_date` (`start_date`),
+  KEY `end_date` (`end_date`),
+  KEY `status` (`status`),
+  KEY `idx_contracts_employee_id` (`employee_id`),
+  CONSTRAINT `contracts_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
+-- Listage de la structure de table crud_asbl_ong. contrats
+CREATE TABLE IF NOT EXISTS `contrats` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `employee_id` int NOT NULL,
+  `type` enum('CDI','CDD','Stage','Autre') COLLATE utf8mb4_unicode_ci DEFAULT 'CDI',
+  `start_date` date NOT NULL,
+  `end_date` date DEFAULT NULL,
+  `status` enum('actif','termine','suspendu') COLLATE utf8mb4_unicode_ci DEFAULT 'actif',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `contrats_ibfk_1` (`employee_id`),
+  CONSTRAINT `contrats_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
+-- Listage de la structure de table crud_asbl_ong. documents
+CREATE TABLE IF NOT EXISTS `documents` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nom` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `chemin` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `version` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `statut` enum('actif','archive','supprime') COLLATE utf8mb4_unicode_ci DEFAULT 'actif',
+  `date_upload` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `utilisateur_id` int DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `utilisateur_id` (`utilisateur_id`),
+  CONSTRAINT `documents_ibfk_1` FOREIGN KEY (`utilisateur_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
+-- Listage de la structure de table crud_asbl_ong. donations
+CREATE TABLE IF NOT EXISTS `donations` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `donor_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `donor_email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `donation_date` date NOT NULL,
+  `project_id` int DEFAULT NULL,
+  `payment_method` enum('cash','bank_transfer','online') COLLATE utf8mb4_unicode_ci DEFAULT 'cash',
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_donations_project` (`project_id`),
+  KEY `idx_donations_date` (`donation_date`),
+  CONSTRAINT `donations_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
+-- Listage de la structure de table crud_asbl_ong. ecritures
+CREATE TABLE IF NOT EXISTS `ecritures` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `date` date NOT NULL,
+  `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `debit` decimal(12,2) DEFAULT '0.00',
+  `credit` decimal(12,2) DEFAULT '0.00',
+  `project_id` int DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `project_id` (`project_id`),
+  CONSTRAINT `ecritures_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
+
+-- Listage de la structure de table crud_asbl_ong. skills
+CREATE TABLE IF NOT EXISTS `skills` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `category` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
@@ -254,6 +300,28 @@ CREATE TABLE IF NOT EXISTS `employee_skills` (
   KEY `skill_id` (`skill_id`),
   CONSTRAINT `employee_skills_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE,
   CONSTRAINT `employee_skills_ibfk_2` FOREIGN KEY (`skill_id`) REFERENCES `skills` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
+-- Listage de la structure de table crud_asbl_ong. trainings
+CREATE TABLE IF NOT EXISTS `trainings` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `provider` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `training_type` enum('Interne','Externe','Online','Conf??rence') COLLATE utf8mb4_unicode_ci DEFAULT 'Externe',
+  `start_date` date NOT NULL,
+  `end_date` date DEFAULT NULL,
+  `duration_hours` int DEFAULT NULL,
+  `location` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cost` decimal(10,2) DEFAULT NULL,
+  `max_participants` int DEFAULT NULL,
+  `status` enum('planned','ongoing','completed','cancelled') COLLATE utf8mb4_unicode_ci DEFAULT 'planned',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `start_date` (`start_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
@@ -294,7 +362,7 @@ CREATE TABLE IF NOT EXISTS `engagements` (
   KEY `campagne_id` (`campagne_id`),
   CONSTRAINT `engagements_ibfk_1` FOREIGN KEY (`contact_id`) REFERENCES `contacts` (`id`) ON DELETE CASCADE,
   CONSTRAINT `engagements_ibfk_2` FOREIGN KEY (`campagne_id`) REFERENCES `campagnes` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
@@ -327,7 +395,7 @@ CREATE TABLE IF NOT EXISTS `evaluations` (
   KEY `evaluation_date` (`evaluation_date`),
   CONSTRAINT `evaluations_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE,
   CONSTRAINT `evaluations_ibfk_2` FOREIGN KEY (`evaluator_id`) REFERENCES `employees` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
@@ -347,7 +415,7 @@ CREATE TABLE IF NOT EXISTS `events` (
   KEY `idx_events_organizer` (`organizer_id`),
   KEY `idx_events_date` (`event_date`),
   CONSTRAINT `events_ibfk_1` FOREIGN KEY (`organizer_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
@@ -362,7 +430,7 @@ CREATE TABLE IF NOT EXISTS `factures` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `numero` (`numero`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
@@ -400,7 +468,56 @@ CREATE TABLE IF NOT EXISTS `interactions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
+-- Listage de la structure de table crud_asbl_ong. recruitment_offers
+CREATE TABLE IF NOT EXISTS `recruitment_offers` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `title` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `department` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `position_type` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contract_type` enum('CDI','CDD','Stage','Alternance','Freelance') COLLATE utf8mb4_unicode_ci DEFAULT 'CDI',
+  `salary_range_min` decimal(10,2) DEFAULT NULL,
+  `salary_range_max` decimal(10,2) DEFAULT NULL,
+  `requirements` text COLLATE utf8mb4_unicode_ci,
+  `location` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `posting_date` date DEFAULT NULL,
+  `closing_date` date DEFAULT NULL,
+  `status` enum('draft','open','closed','archived') COLLATE utf8mb4_unicode_ci DEFAULT 'draft',
+  `created_by` int DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `created_by` (`created_by`),
+  KEY `status` (`status`),
+  KEY `closing_date` (`closing_date`),
+  CONSTRAINT `recruitment_offers_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `employees` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Les données exportées n'étaient pas sélectionnées.
+-- Listage de la structure de table crud_asbl_ong. recruitment_candidates
+CREATE TABLE IF NOT EXISTS `recruitment_candidates` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `offer_id` int NOT NULL,
+  `first_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `last_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `phone` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cv_path` text COLLATE utf8mb4_unicode_ci,
+  `cover_letter_path` text COLLATE utf8mb4_unicode_ci,
+  `application_date` date DEFAULT NULL,
+  `status` enum('new','screening','interview','offer','rejected','hired') COLLATE utf8mb4_unicode_ci DEFAULT 'new',
+  `score` int DEFAULT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `offer_id` (`offer_id`),
+  KEY `status` (`status`),
+  KEY `application_date` (`application_date`),
+  CONSTRAINT `recruitment_candidates_ibfk_1` FOREIGN KEY (`offer_id`) REFERENCES `recruitment_offers` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
 -- Listage de la structure de table crud_asbl_ong. interviews
 CREATE TABLE IF NOT EXISTS `interviews` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -473,7 +590,7 @@ CREATE TABLE IF NOT EXISTS `members` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   KEY `idx_members_email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
@@ -516,7 +633,7 @@ CREATE TABLE IF NOT EXISTS `payroll` (
   UNIQUE KEY `unique_employee_payroll` (`employee_id`,`payroll_month`,`payroll_year`),
   KEY `payroll_year` (`payroll_year`),
   CONSTRAINT `payroll_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=91 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
@@ -531,7 +648,7 @@ CREATE TABLE IF NOT EXISTS `pointages` (
   PRIMARY KEY (`id`),
   KEY `pointages_ibfk_1` (`employee_id`),
   CONSTRAINT `pointages_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
@@ -547,76 +664,12 @@ CREATE TABLE IF NOT EXISTS `politiques_confidentialite` (
 
 -- Les données exportées n'étaient pas sélectionnées.
 
--- Listage de la structure de table crud_asbl_ong. projects
-CREATE TABLE IF NOT EXISTS `projects` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
-  `start_date` date DEFAULT NULL,
-  `end_date` date DEFAULT NULL,
-  `budget` decimal(10,2) DEFAULT NULL,
-  `status` enum('planning','active','completed','on_hold') COLLATE utf8mb4_unicode_ci DEFAULT 'planning',
-  `manager_id` int DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_projects_manager` (`manager_id`),
-  CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`manager_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
--- Listage de la structure de table crud_asbl_ong. recruitment_candidates
-CREATE TABLE IF NOT EXISTS `recruitment_candidates` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `offer_id` int NOT NULL,
-  `first_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `last_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `phone` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cv_path` text COLLATE utf8mb4_unicode_ci,
-  `cover_letter_path` text COLLATE utf8mb4_unicode_ci,
-  `application_date` date DEFAULT NULL,
-  `status` enum('new','screening','interview','offer','rejected','hired') COLLATE utf8mb4_unicode_ci DEFAULT 'new',
-  `score` int DEFAULT NULL,
-  `notes` text COLLATE utf8mb4_unicode_ci,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `offer_id` (`offer_id`),
-  KEY `status` (`status`),
-  KEY `application_date` (`application_date`),
-  CONSTRAINT `recruitment_candidates_ibfk_1` FOREIGN KEY (`offer_id`) REFERENCES `recruitment_offers` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Les données exportées n'étaient pas sélectionnées.
 
--- Listage de la structure de table crud_asbl_ong. recruitment_offers
-CREATE TABLE IF NOT EXISTS `recruitment_offers` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `title` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `department` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `position_type` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `contract_type` enum('CDI','CDD','Stage','Alternance','Freelance') COLLATE utf8mb4_unicode_ci DEFAULT 'CDI',
-  `salary_range_min` decimal(10,2) DEFAULT NULL,
-  `salary_range_max` decimal(10,2) DEFAULT NULL,
-  `requirements` text COLLATE utf8mb4_unicode_ci,
-  `location` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `posting_date` date DEFAULT NULL,
-  `closing_date` date DEFAULT NULL,
-  `status` enum('draft','open','closed','archived') COLLATE utf8mb4_unicode_ci DEFAULT 'draft',
-  `created_by` int DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `created_by` (`created_by`),
-  KEY `status` (`status`),
-  KEY `closing_date` (`closing_date`),
-  CONSTRAINT `recruitment_offers_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `employees` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Les données exportées n'étaient pas sélectionnées.
 
 -- Listage de la structure de table crud_asbl_ong. releves_bancaires
 CREATE TABLE IF NOT EXISTS `releves_bancaires` (
@@ -626,7 +679,7 @@ CREATE TABLE IF NOT EXISTS `releves_bancaires` (
   `fichier` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
@@ -641,20 +694,9 @@ CREATE TABLE IF NOT EXISTS `risques` (
   PRIMARY KEY (`id`),
   KEY `project_id` (`project_id`),
   CONSTRAINT `risques_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
-
--- Listage de la structure de table crud_asbl_ong. skills
-CREATE TABLE IF NOT EXISTS `skills` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `category` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
@@ -674,7 +716,7 @@ CREATE TABLE IF NOT EXISTS `taches` (
   KEY `responsable_id` (`responsable_id`),
   CONSTRAINT `taches_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE,
   CONSTRAINT `taches_ibfk_2` FOREIGN KEY (`responsable_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
@@ -705,43 +747,7 @@ CREATE TABLE IF NOT EXISTS `timekeeping` (
 
 -- Les données exportées n'étaient pas sélectionnées.
 
--- Listage de la structure de table crud_asbl_ong. trainings
-CREATE TABLE IF NOT EXISTS `trainings` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `provider` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
-  `training_type` enum('Interne','Externe','Online','Conf??rence') COLLATE utf8mb4_unicode_ci DEFAULT 'Externe',
-  `start_date` date NOT NULL,
-  `end_date` date DEFAULT NULL,
-  `duration_hours` int DEFAULT NULL,
-  `location` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cost` decimal(10,2) DEFAULT NULL,
-  `max_participants` int DEFAULT NULL,
-  `status` enum('planned','ongoing','completed','cancelled') COLLATE utf8mb4_unicode_ci DEFAULT 'planned',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `start_date` (`start_date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Les données exportées n'étaient pas sélectionnées.
-
--- Listage de la structure de table crud_asbl_ong. users
-CREATE TABLE IF NOT EXISTS `users` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `username` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `role` enum('admin','moderator','visitor','hr_manager','accountant','project_manager','crm_officer','member','volunteer','guest','supervisor','auditor','security_officer','it_officer','communication_officer','compliance_officer','marketplace_officer','support_officer','training_officer','quality_officer') COLLATE utf8mb4_unicode_ci DEFAULT 'visitor',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `username` (`username`),
-  UNIQUE KEY `email` (`email`),
-  KEY `idx_users_email` (`email`),
-  KEY `idx_users_role` (`role`)
-) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 

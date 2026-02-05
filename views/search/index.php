@@ -2,152 +2,190 @@
 require_once 'views/header.php';
 ?>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="hero-section">
-                <h1 class="hero-title">Search Results</h1>
-                <p class="hero-subtitle">Find what you're looking for across all our data</p>
-            </div>
-        </div>
+<div class="nav-container">
+    <div class="nav-left">
+        <h1><i class="fas fa-search"></i> Résultats de recherche</h1>
+        <p class="nav-date">
+            <?php if (!empty($query)): ?>
+                Résultats pour : <strong><?php echo htmlspecialchars($query); ?></strong>
+            <?php else: ?>
+                Explorez vos données
+            <?php endif; ?>
+        </p>
     </div>
-
-    <div class="row">
-        <div class="col-12">
-            <div class="search-results-container">
-                <?php if (!empty($query)): ?>
-                    <div class="search-query-display">
-                        <h3>Results for: "<?php echo htmlspecialchars($query); ?>"</h3>
-                    </div>
-                <?php endif; ?>
-
-                <?php if (empty($results['members']) && empty($results['projects']) && empty($results['events']) && empty($results['donations'])): ?>
-                    <div class="no-results">
-                        <div class="no-results-icon">
-                            <i class="fas fa-search"></i>
-                        </div>
-                        <h3>No results found</h3>
-                        <p>Try adjusting your search terms or check your spelling.</p>
-                    </div>
-                <?php else: ?>
-                    <!-- Members Results -->
-                    <?php if (!empty($results['members'])): ?>
-                        <div class="search-section">
-                            <h4 class="search-section-title">
-                                <i class="fas fa-users"></i> Members (<?php echo count($results['members']); ?>)
-                            </h4>
-                            <div class="search-results-grid">
-                                <?php foreach ($results['members'] as $member): ?>
-                                    <div class="search-result-card">
-                                        <div class="result-icon">
-                                            <i class="fas fa-user"></i>
-                                        </div>
-                                        <div class="result-content">
-                                            <h5><?php echo htmlspecialchars($member['first_name'] . ' ' . $member['last_name']); ?></h5>
-                                            <p><?php echo htmlspecialchars($member['email']); ?></p>
-                                        </div>
-                                        <div class="result-actions">
-                                            <a href="/members/show?id=<?php echo $member['id']; ?>" class="btn btn-primary btn-sm">View</a>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-
-                    <!-- Projects Results -->
-                    <?php if (!empty($results['projects'])): ?>
-                        <div class="search-section">
-                            <h4 class="search-section-title">
-                                <i class="fas fa-project-diagram"></i> Projects (<?php echo count($results['projects']); ?>)
-                            </h4>
-                            <div class="search-results-grid">
-                                <?php foreach ($results['projects'] as $project): ?>
-                                    <div class="search-result-card">
-                                        <div class="result-icon">
-                                            <i class="fas fa-project-diagram"></i>
-                                        </div>
-                                        <div class="result-content">
-                                            <h5><?php echo htmlspecialchars($project['name']); ?></h5>
-                                            <p><?php echo htmlspecialchars(substr($project['description'], 0, 100)) . '...'; ?></p>
-                                        </div>
-                                        <div class="result-actions">
-                                            <a href="/projects/show?id=<?php echo $project['id']; ?>" class="btn btn-primary btn-sm">View</a>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-
-                    <!-- Events Results -->
-                    <?php if (!empty($results['events'])): ?>
-                        <div class="search-section">
-                            <h4 class="search-section-title">
-                                <i class="fas fa-calendar-alt"></i> Events (<?php echo count($results['events']); ?>)
-                            </h4>
-                            <div class="search-results-grid">
-                                <?php foreach ($results['events'] as $event): ?>
-                                    <div class="search-result-card">
-                                        <div class="result-icon">
-                                            <i class="fas fa-calendar-alt"></i>
-                                        </div>
-                                        <div class="result-content">
-                                            <h5><?php echo htmlspecialchars($event['title']); ?></h5>
-                                            <p><?php echo htmlspecialchars(substr($event['description'], 0, 100)) . '...'; ?></p>
-                                        </div>
-                                        <div class="result-actions">
-                                            <a href="/events/show?id=<?php echo $event['id']; ?>" class="btn btn-primary btn-sm">View</a>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-
-                    <!-- Donations Results -->
-                    <?php if (!empty($results['donations'])): ?>
-                        <div class="search-section">
-                            <h4 class="search-section-title">
-                                <i class="fas fa-donate"></i> Donations (<?php echo count($results['donations']); ?>)
-                            </h4>
-                            <div class="search-results-grid">
-                                <?php foreach ($results['donations'] as $donation): ?>
-                                    <div class="search-result-card">
-                                        <div class="result-icon">
-                                            <i class="fas fa-donate"></i>
-                                        </div>
-                                        <div class="result-content">
-                                            <h5>$<?php echo number_format($donation['amount'], 2); ?></h5>
-                                            <p>By <?php echo htmlspecialchars($donation['first_name'] . ' ' . $donation['last_name']); ?> on <?php echo date('M j, Y', strtotime($donation['created_at'])); ?></p>
-                                        </div>
-                                        <div class="result-actions">
-                                            <a href="/donations/show?id=<?php echo $donation['id']; ?>" class="btn btn-primary btn-sm">View</a>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-                <?php endif; ?>
-            </div>
-        </div>
+    <div class="nav-actions">
+        <form method="get" action="<?php echo BASE_URL; ?>/search" style="display: flex; gap: 8px;">
+            <input type="text" name="query" placeholder="Rechercher..." value="<?php echo htmlspecialchars($query ?? ''); ?>" class="form-control" style="width: 250px;">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i> Chercher
+            </button>
+        </form>
     </div>
 </div>
 
-<style>
-    .search-results-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-    }
+<?php if (empty($results['members']) && empty($results['projects']) && empty($results['events']) && empty($results['donations'])): ?>
+    <div style="text-align: center; padding: 60px 20px;">
+        <i class="fas fa-search" style="font-size: 64px; color: var(--primary); opacity: 0.3;"></i>
+        <h3 style="margin-top: 20px; color: var(--text-secondary);">Aucun résultat trouvé</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 20px;">Essayez d'ajuster vos termes de recherche ou vérifiez l'orthographe.</p>
+    </div>
+<?php else: ?>
+    <!-- Members Results -->
+    <?php if (!empty($results['members'])): ?>
+        <div class="chart-card" style="margin-bottom: 32px;">
+            <div class="chart-header">
+                <h3><i class="fas fa-users"></i> Membres (<?php echo count($results['members']); ?>)</h3>
+            </div>
+            <div class="chart-content">
+                <div class="search-results-grid">
+                    <?php foreach ($results['members'] as $member): ?>
+                        <div class="search-result-card">
+                            <div class="result-icon members">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div class="result-content">
+                                <h5><?php echo htmlspecialchars($member['first_name'] . ' ' . $member['last_name']); ?></h5>
+                                <p><i class="fas fa-envelope"></i> <?php echo htmlspecialchars($member['email']); ?></p>
+                                <span class="badge bg-secondary" style="margin-top: 8px;">ID: <?php echo $member['id']; ?></span>
+                            </div>
+                            <div class="result-actions">
+                                <a href="<?php echo BASE_URL; ?>/members?action=show&id=<?php echo $member['id']; ?>" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
 
-    .search-query-display {
-        margin-bottom: 2rem;
-        padding: 1rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 12px;
+    <!-- Projects Results -->
+    <?php if (!empty($results['projects'])): ?>
+        <div class="chart-card" style="margin-bottom: 32px;">
+            <div class="chart-header">
+                <h3><i class="fas fa-project-diagram"></i> Projets (<?php echo count($results['projects']); ?>)</h3>
+            </div>
+            <div class="chart-content">
+                <div class="search-results-grid">
+                    <?php foreach ($results['projects'] as $project): ?>
+                        <div class="search-result-card">
+                            <div class="result-icon projects">
+                                <i class="fas fa-folder-open"></i>
+                            </div>
+                            <div class="result-content">
+                                <h5><?php echo htmlspecialchars($project['name']); ?></h5>
+                                <p><?php echo htmlspecialchars(substr($project['description'] ?? '', 0, 100)); ?><?php echo strlen($project['description'] ?? '') > 100 ? '...' : ''; ?></p>
+                                <span class="badge bg-<?php
+                                    echo match ($project['status']) {
+                                        'planning' => 'secondary',
+                                        'active' => 'success',
+                                        'completed' => 'info',
+                                        'on_hold' => 'warning',
+                                        default => 'secondary'
+                                    };
+                                    ?>" style="margin-top: 8px;">
+                                    <?php
+                                    echo match ($project['status']) {
+                                        'planning' => 'Planification',
+                                        'active' => 'Actif',
+                                        'completed' => 'Terminé',
+                                        'on_hold' => 'En attente',
+                                        default => $project['status']
+                                    };
+                                    ?>
+                                </span>
+                            </div>
+                            <div class="result-actions">
+                                <a href="<?php echo BASE_URL; ?>/projects?action=show&id=<?php echo $project['id']; ?>" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <!-- Events Results -->
+    <?php if (!empty($results['events'])): ?>
+        <div class="chart-card" style="margin-bottom: 32px;">
+            <div class="chart-header">
+                <h3><i class="fas fa-calendar-alt"></i> Événements (<?php echo count($results['events']); ?>)</h3>
+            </div>
+            <div class="chart-content">
+                <div class="search-results-grid">
+                    <?php foreach ($results['events'] as $event): ?>
+                        <div class="search-result-card">
+                            <div class="result-icon events">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="result-content">
+                                <h5><?php echo htmlspecialchars($event['title']); ?></h5>
+                                <p><?php echo htmlspecialchars(substr($event['description'] ?? '', 0, 100)); ?><?php echo strlen($event['description'] ?? '') > 100 ? '...' : ''; ?></p>
+                                <span class="badge bg-<?php
+                                    echo match ($event['status']) {
+                                        'planned' => 'secondary',
+                                        'ongoing' => 'success',
+                                        'completed' => 'info',
+                                        'cancelled' => 'danger',
+                                        default => 'secondary'
+                                    };
+                                    ?>" style="margin-top: 8px;">
+                                    <?php
+                                    echo match ($event['status']) {
+                                        'planned' => 'Planifié',
+                                        'ongoing' => 'En cours',
+                                        'completed' => 'Terminé',
+                                        'cancelled' => 'Annulé',
+                                        default => $event['status']
+                                    };
+                                    ?>
+                                </span>
+                            </div>
+                            <div class="result-actions">
+                                <a href="<?php echo BASE_URL; ?>/events?action=show&id=<?php echo $event['id']; ?>" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <!-- Donations Results -->
+    <?php if (!empty($results['donations'])): ?>
+        <div class="chart-card" style="margin-bottom: 32px;">
+            <div class="chart-header">
+                <h3><i class="fas fa-donate"></i> Dons (<?php echo count($results['donations']); ?>)</h3>
+            </div>
+            <div class="chart-content">
+                <div class="search-results-grid">
+                    <?php foreach ($results['donations'] as $donation): ?>
+                        <div class="search-result-card">
+                            <div class="result-icon finance">
+                                <i class="fas fa-gift"></i>
+                            </div>
+                            <div class="result-content">
+                                <h5 class="trend-value positive"><?php echo number_format($donation['amount'], 2, ',', ' '); ?> €</h5>
+                                <p><i class="fas fa-user"></i> <?php echo htmlspecialchars($donation['donor_name'] ?? 'Anonyme'); ?></p>
+                                <p><i class="fas fa-calendar"></i> <?php echo date('d/m/Y', strtotime($donation['donation_date'] ?? $donation['created_at'])); ?></p>
+                            </div>
+                            <div class="result-actions">
+                                <a href="<?php echo BASE_URL; ?>/donations?action=show&id=<?php echo $donation['id']; ?>" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+<?php endif; ?>
         text-align: center;
     }
 

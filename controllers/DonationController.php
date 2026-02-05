@@ -105,7 +105,7 @@ class DonationController extends Controller
             $this->redirect('/donations');
         }
 
-        $donation = $this->donationModel->findById($id);
+        $donation = $this->donationModel->findByIdWithProject($id);
         if (!$donation) {
             $this->setFlash('error', 'Donation not found.');
             $this->redirect('/donations');

@@ -98,11 +98,15 @@ class EventController extends Controller
             $this->redirect('/events');
         }
 
-        $event = $this->eventModel->findById($id);
+        $event = $this->eventModel->findByIdWithOrganizer($id);
         if (!$event) {
             $this->setFlash('error', 'Event not found.');
             $this->redirect('/events');
         }
+
+        // Set registered_count to 0 for now (no participant tracking in DB)
+        // TODO: Add event_participants table in future versions
+        $event['registered_count'] = 0;
 
         $flash = $this->getFlash();
 
